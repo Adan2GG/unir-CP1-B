@@ -5,21 +5,20 @@ pipeline {
         parallelsAlwaysFailFast()
         }
      stages {
-        stage('Get Code') {
-            steps {
-                git branch: 'master', url:'https://github.com/Adan2GG/unir-CP1-A.git'
-                stash name:'code' , includes:'**'
-            }
-        }
-		
-		stage('Static') {
-			steps{
-				bat '''
-					flake8 --format=pylint --exit-zero app >flake8.out
-				'''
-				recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold:10, type: 'TOTAL', unstable: true], [threshold: 11, type: 'TOTAL', unstable: false]]
-			}
+	stage('Get Code') {
+	    steps {
+		git branch: 'master', url:'https://github.com/Adan2GG/unir-CP1-A.git'
+		stash name:'code' , includes:'**'
+	    }
+	}
+	stage('Static') {
+		steps{
+			bat '''
+				flake8 --format=pylint --exit-zero app >flake8.out
+			'''
+			recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold:10, type: 'TOTAL', unstable: true], [threshold: 11, type: 'TOTAL', unstable: false]]
 		}
+	}
         stage('Tests') {
             parallel {
                  stage('Unit') {
