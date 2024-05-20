@@ -11,15 +11,14 @@ pipeline {
                 stash name:'code' , includes:'**'
             }
         }
-		
-		stage('Static') {
-			steps{
-				bat '''
-					flake8 --format=pylint --exit-zero --extend-ignore E271,E501 app >flake8.out
-				'''
-				recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold:10, type: 'TOTAL', unstable: false], [threshold: 5, type: 'TOTAL', unstable: false]]
-			}
+	stage('Static') {
+		steps{
+			bat '''
+				flake8 --format=pylint --exit-zero --extend-ignore E271,E501 app >flake8.out
+			'''
+			recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold:10, type: 'TOTAL', unstable: false], [threshold: 5, type: 'TOTAL', unstable: false]]
 		}
+	}
         stage('Tests') {
             parallel {
                  stage('Unit') {
@@ -54,6 +53,12 @@ pipeline {
                         }
                     }
                 }
+                stage('Performance'){
+                steps {
+                    bat 'C:\\Users\\adan.garciagarcia\\Desktop\\CursoDevops\\Herramientas\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\flask.jmx -f -l flask.jtl'
+                    perfReport sourceDataFiles : 'flask.jtl'
+                }
+                }
             }
         }
         stage('cobertura'){
@@ -79,15 +84,14 @@ pipeline {
                 }
             }
         }
-		stage('security') {
-			steps {
-				bat '''
-					bandit -r .  --exit-zero -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
-				'''
-				recordIssues tools: [pyLint(name: 'bandit', pattern: 'bandit.out')], qualityGates: [[threshold:1, type: 'TOTAL', unstable: true], [threshold: 3, type: 'TOTAL', unstable: false]]
-			}
+	stage('security') {
+		steps {
+			bat '''
+				bandit -r .  --exit-zero -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
+			'''
+			recordIssues tools: [pyLint(name: 'bandit', pattern: 'bandit.out')], qualityGates: [[threshold:1, type: 'TOTAL', unstable: true], [threshold: 3, type: 'TOTAL', unstable: false]]
 		}
-       
+	}
         stage('Result') {
             steps {
                 unstash name:'unit-res'
@@ -95,16 +99,16 @@ pipeline {
                 junit 'result*.xml'
             }
         }
-		stage('clear') {
-			 steps {
-                bat '''
-                    REM Limpia el workspace
-                    git clean -fd
-
-                    REM Limpia el stash
-                    git stash clear
-                '''
-            }
-		}
+	stage('clear') {
+	 steps {
+		bat '''
+		    REM Limpia el workspace
+		    git clean -fd
+	
+		    REM Limpia el stash
+		    git stash clear
+		'''
+		}	
+	}
     }
 }
