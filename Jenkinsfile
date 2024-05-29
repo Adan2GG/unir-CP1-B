@@ -23,6 +23,7 @@ pipeline {
                                 set PYTHONPATH=%WORKSPACE%
                                 pytest --junitxml=result-unit.xml test\\unit
                             '''
+                           junit 'result-unit.xml'
                            }
                         }
                 }
@@ -41,6 +42,7 @@ pipeline {
                             start java -jar C:\\Users\\adan.garciagarcia\\Desktop\\CursoDevops\\Herramientas\\wiremock-standalone-3.5.4.jar --port 9090 --verbose --root-dir test\\wiremock
                             pytest --junitxml=result-rest.xml test\\rest
                         '''
+                        junit 'result-rest.xml'
                         }
                     }
                 }
@@ -89,6 +91,5 @@ pipeline {
                 }
             }
 		}
-       
     }
 }
