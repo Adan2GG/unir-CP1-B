@@ -17,19 +17,31 @@ pipeline {
                  stage('Unit') {
                     agent { label 'agent1'}
                     steps {
+                        script {
+                        def stageName = env.STAGE_NAME
+                        echo "Stage: ${stageName}"
+                        def nodeName = env.NODE_NAME
+                        echo "Agent: ${nodeName}"
+                        }
                          unstash name:'code'
                          catchError(buildResult:'UNSTABLE',stageResult:'FAILURE') {
                              bat ''' 
                                 set PYTHONPATH=%WORKSPACE%
                                 pytest --junitxml=result-unit.xml test\\unit
                             '''
-                           junit 'result-unit.xml'
+                           junit testResults: 'result-unit.xml'
                            }
                         }
                 }
                  stage('Rest') {
                     agent { label 'agent2'}
                     steps {
+                        script {
+                        def stageName = env.STAGE_NAME
+                        echo "Stage: ${stageName}"
+                        def nodeName = env.NODE_NAME
+                        echo "Agent: ${nodeName}"
+                        }
                         unstash name:'code'
                         catchError(buildResult:'UNSTABLE',stageResult:'FAILURE') {
                             bat '''    
@@ -42,13 +54,19 @@ pipeline {
                             start java -jar C:\\Users\\adan.garciagarcia\\Desktop\\CursoDevops\\Herramientas\\wiremock-standalone-3.5.4.jar --port 9090 --verbose --root-dir test\\wiremock
                             pytest --junitxml=result-rest.xml test\\rest
                         '''
-                        junit 'result-rest.xml'
+                        junit testResults:'result-rest.xml'
                         }
                     }
                 }
                 stage('Performance'){
                 agent {label 'agent3'}
                 steps {
+                    script {
+                        def stageName = env.STAGE_NAME
+                        echo "Stage: ${stageName}"
+                        def nodeName = env.NODE_NAME
+                        echo "Agent: ${nodeName}"
+                    }
                     unstash name:'code'
                     catchError(buildResult:'UNSTABLE',stageResult:'FAILURE') {
                     bat 'C:\\Users\\adan.garciagarcia\\Desktop\\CursoDevops\\Herramientas\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\flask.jmx -f -l flask.jtl'
@@ -71,7 +89,6 @@ pipeline {
 		}
         stage('Cobertura'){
             steps {
-                    unstash name:'code'
                     bat '''
                         coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
                         coverage xml
