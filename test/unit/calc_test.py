@@ -68,9 +68,9 @@ class TestCalculate(unittest.TestCase):
         self.assertRaises(TypeError, self.calc.substract, "0", 0)
 
     def test_check_types_method_returns_correct_result(self):
-        self.assertEqual(TypeError, self.calc.check_types(B, 6))
-        self.assertEqual(TypeError, self.calc.check_types(A, 6))
-        self.assertEqual(TypeError, self.calc.check_types(8, C))
+        self.assertEqual(TypeError, self.calc.check_types("B", 6))
+        self.assertEqual(TypeError, self.calc.check_types("A", 6))
+        self.assertEqual(TypeError, self.calc.check_types(8, "C"))
         self.assertRaises(TypeError, self.calc.check_types, "0", 0)
         
 if __name__ == "__main__":  # pragma: no cover
